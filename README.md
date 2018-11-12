@@ -32,12 +32,14 @@ Posts.to_csv(instances: posts_array)
 class Post
   def spreadsheet_column
     [
-      [],
-      [],
-      [],
-      [],
-      [],
-      []
+      ['Title', :title],
+      ['Content', content.strip],
+      ['Author', (author.name if author)],
+      ['Published?', (published ? 'Yes' : 'No')],
+      :published_at, 
+      ['# fo Views', :number_of_views, :float],
+      ['Rating', :rating],
+      ['Category/Tags', "#{category,name} - #{tags.collect(&:name).join(', ')}"]
     ]
   end
 end
@@ -45,7 +47,18 @@ Post.to_xlsx(instances: posts)
 
 Post.to_xlsx(instances: posts, spreadsheet_columns: :my_special_columns)
 
-Post.to_xlsx()
+Post.to_xlsx(instances: posts, spreadsheet_columns: Proc.new{|instance|
+  [
+    ['Title', :title],
+    ['Content', instance.content.strip],
+    ['Author', (instance.author.name if instance.author)],
+    ['Published?', (instance.published ? 'Yes' : 'No')],
+    :published_at,
+    ['# of Views', :number_of_views, :float],
+    ['Rating', :rating],
+    ['Category/Tags', "#{instance.category.name} - #{instance.tags.collect(&:name).join(', ')}"]
+  ]
+})
 
 class PostsController < ActionController::Base
   respond_to :html, :xlsx, :ods, :csv
